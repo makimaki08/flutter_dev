@@ -26,19 +26,23 @@ class MyApp extends StatelessWidget {
         primaryColor: const Color(0xff2196f3),
         canvasColor: const Color(0xfffafafa),
       ),
-      home: MyHomePage(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/home': (context) => MyHomePage(),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _LoginPage createState() => _LoginPage();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _LoginPage extends State<LoginPage> {
 
   @override
   void initState() {
@@ -52,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Login Page'),
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
@@ -110,23 +114,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
+
   void signedAlert(String _userId) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text("Alert"),
-        content: Text(_userId ?? "サインイン失敗!"),
-        // content: Text("サインイン成功"),
-      )
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text("Alert"),
+          content: Text("ログイン成功！\nUserID：${_userId}"),
+          // content: Text("サインイン成功"),
+        )
     );
   }
-
 
   Future<Object> signInWithMail() async {
     try {
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _mail.text,
         password: _passWord.text,
+      );
+      // signedAlert(userCredential.user!.uid);
+      Navigator.pushNamed(
+        context,
+        '/home',
+        arguments: userCredential.user!.uid
       );
       return userCredential.user!;
     } on FirebaseAuthException catch (e) {
@@ -137,6 +147,38 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       rethrow;
     }
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var _userId = ModalRoute.of(context)?.settings.arguments;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+      ),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            Text(
+              "ログイン成功\nUser ID : ${_userId}",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: ui.FontWeight.w500
+              ),
+            ),
+            Padding(padding: EdgeInsets.all(10.0)),
+            ElevatedButton(
+              child: Text('Logout'),
+              onPressed: () {
+                Navigator.pop<String>(context);
+              },
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
