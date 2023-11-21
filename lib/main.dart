@@ -115,12 +115,12 @@ class _LoginPage extends State<LoginPage> {
 
 
 
-  void signedAlert(String _userId) {
+  void signedAlert() {
     showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
           title: Text("Alert"),
-          content: Text("ログイン成功！\nUserID：${_userId}"),
+          content: Text("ログイン失敗\nメールアドレスかパスワードに誤りが無いか、確認してください。"),
           // content: Text("サインイン成功"),
         )
     );
@@ -132,7 +132,6 @@ class _LoginPage extends State<LoginPage> {
         email: _mail.text,
         password: _passWord.text,
       );
-      // signedAlert(userCredential.user!.uid);
       Navigator.pushNamed(
         context,
         '/home',
@@ -145,6 +144,7 @@ class _LoginPage extends State<LoginPage> {
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
       }
+      signedAlert();
       rethrow;
     }
   }
