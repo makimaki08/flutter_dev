@@ -91,6 +91,10 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: _passWord,
               style: TextStyle(fontSize: 24),
               minLines: 1,
+            ),
+            ElevatedButton(
+              onPressed: signInWithMail,
+              child: Text("Sign In"),
             )
           ],
         ),
@@ -98,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.open_in_new),
         onPressed: () {
-          signInWithMail();
+          var _userCredential = signInWithMail();
         },
       ),
     );
@@ -106,26 +110,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-  void signedAlert() {
+  void signedAlert(String _userId) {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text("Alert"),
-        content: Text("サインイン成功!"),
+        content: Text(_userId ?? "サインイン失敗!"),
+        // content: Text("サインイン成功"),
       )
     );
   }
 
 
-  void signInWithMail() async {
+  Future<Object> signInWithMail() async {
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _mail.text,
         password: _passWord.text,
       );
-      signedAlert();
+      return userCredential.user!;
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+      rethrow;
     }
   }
 }
+
